@@ -57,10 +57,34 @@ def closed_loop_characteristic(Kp, Ki, Kd):
     ]
 
 def check_stability(Kp, Ki, Kd):
-    """Check closed-loop stability using the cubic Routh-Hurwitz criterion."""
+    """Check closed-loop stability using analytical control criteria."""
 
     a3, a2, a1, a0 = closed_loop_characteristic(Kp, Ki, Kd)
 
+    # If Ki = 0, the integrator cancels and the effective
+    # closed-loop characteristic equation is second order.
+    if Ki == 0:
+        stable = (
+            MASS > 0 and
+            (DAMPING + Kd) > 0 and
+            (SPRING + Kp) > 0
+        )
+
+        return {
+            "requirement": "closed_loop_stability",
+            "operation": "Second-order analytical stability check",
+            "observed": {
+                "coefficients": [
+                    MASS,
+                    DAMPING + Kd,
+                    SPRING + Kp
+                ]
+            },
+            "expected": "all second-order coefficients > 0",
+            "verdict": "pass" if stable else "fail"
+        }
+
+    # Full PID / PI case: cubic Routh-Hurwitz criterion
     coefficients_positive = (
         a3 > 0 and
         a2 > 0 and
@@ -74,7 +98,7 @@ def check_stability(Kp, Ki, Kd):
 
     return {
         "requirement": "closed_loop_stability",
-        "operation": "Routh-Hurwitz stability check",
+        "operation": "Cubic Routh-Hurwitz stability check",
         "observed": {
             "coefficients": [a3, a2, a1, a0],
             "routh_left": a2 * a1,
