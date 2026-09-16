@@ -1,5 +1,7 @@
 # Non-oracle verifier for ENGDESIGN control-system tasks
 import math
+import numpy as np
+from scipy import signal
 
 # Public task parameters from ENGDESIGN XG_13
 MASS = 1.0          # kg
