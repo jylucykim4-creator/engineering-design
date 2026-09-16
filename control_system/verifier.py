@@ -142,3 +142,44 @@ def simulate_closed_loop(Kp, Ki, Kd):
     time, response = signal.step(system, T=time)
 
     return time, response
+
+def measure_performance(time, response):
+    """
+    Measure settling time, percent overshoot,
+    and steady-state error from the simulated response.
+    """
+
+    final_value = response[-1]
+
+    # Steady-state error for a unit-step reference
+    steady_state_error = abs(1.0 - final_value)
+
+    # Percent overshoot
+    peak_value = np.max(response)
+
+    if abs(final_value) > 1e-12:
+        overshoot = max(
+            0.0,
+            ((peak_value - final_value) / abs(final_value)) * 100.0
+        )
+    else:
+        overshoot = float("inf")
+
+    # Settling time using a 2% band around the final value
+    tolerance = 0.02 * abs(final_value)
+
+    settling_time = None
+
+    for i in range(len(response)):
+        remaining_response = response[i:]
+
+        if np.all(np.abs(remaining_response - final_value) <= tolerance):
+            settling_time = time[i]
+            break
+
+    return {
+        "settling_time": settling_time,
+        "overshoot": overshoot,
+        "steady_state_error": steady_state_error,
+        "final_value": final_value
+    }
