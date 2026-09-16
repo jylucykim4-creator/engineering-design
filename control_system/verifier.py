@@ -109,3 +109,36 @@ def check_stability(Kp, Ki, Kd):
         "expected": "positive coefficients and a2*a1 > a3*a0",
         "verdict": "pass" if stable else "fail"
     }
+
+def simulate_closed_loop(Kp, Ki, Kd):
+    """
+    Simulate the PID-controlled mass-spring-damper system.
+
+    Modeling assumption:
+    - unity feedback
+    - unit-step reference input
+    """
+
+    # Closed-loop transfer function:
+    #
+    #              Kd*s^2 + Kp*s + Ki
+    # T(s) = --------------------------------
+    #        m*s^3 + (b+Kd)*s^2 + (k+Kp)*s + Ki
+
+    numerator = [Kd, Kp, Ki]
+
+    denominator = [
+        MASS,
+        DAMPING + Kd,
+        SPRING + Kp,
+        Ki
+    ]
+
+    system = signal.TransferFunction(numerator, denominator)
+
+    # Simulate from 0 to 2 seconds
+    time = np.linspace(0, 2.0, 10000)
+
+    time, response = signal.step(system, T=time)
+
+    return time, response
