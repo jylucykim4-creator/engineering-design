@@ -270,6 +270,7 @@ def verify_controller(Kp, Ki, Kd):
 
     # V0: Validate the candidate gains
     validation = validate_pid_gains(Kp, Ki, Kd)
+
     evidence.append({
         "requirement": "valid_pid_gains",
         "operation": "numeric validation",
@@ -282,21 +283,44 @@ def verify_controller(Kp, Ki, Kd):
         "verdict": validation["verdict"]
     })
 
-    
-    # Stop if the candidate itself is invalid
+    # Stop if gains are invalid
     if validation["verdict"] != "pass":
-        return evidence
+        return {
+            "overall_verdict": "fail",
+            "evidence": evidence
+        }
 
-    # V2: Independent analytical stability check
+    # V2: Analytical stability check
     stability = check_stability(Kp, Ki, Kd)
     evidence.append(stability)
 
-    # Do not simulate an analytically unstable controller
+    # Stop if analytically unstable
     if stability["verdict"] != "pass":
-        return evidence
+        return {
+            "overall_verdict": "fail",
+            "evidence": evidence
+        }
 
-    # V3: Execute independent closed-loop simulation
+    # V3: Numerical simulation
     performance_evidence = check_performance(Kp, Ki, Kd)
     evidence.extend(performance_evidence)
 
-    return evidence
+    # Determine overall verdict
+    verdicts = [record["verdict"] for record in evidence]
+
+    if "error" in verdicts:
+        overall_verdict = "error"
+
+    elif "fail" in verdicts:
+        overall_verdict = "fail"
+
+    elif "unknown" in verdicts:
+        overall_verdict = "unknown"
+
+    else:
+        overall_verdict = "pass"
+
+    return {
+        "overall_verdict": overall_verdict,
+        "evidence": evidence
+    }
