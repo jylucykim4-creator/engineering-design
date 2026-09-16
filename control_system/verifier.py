@@ -234,7 +234,6 @@ def check_performance(Kp, Ki, Kd):
         # R3: Zero steady-state error
         # For a stable unity-feedback system with integral action,
         # the final value theorem gives zero step steady-state error.
-
         if Ki > 0:
             steady_state_error = 0.0
         else:
