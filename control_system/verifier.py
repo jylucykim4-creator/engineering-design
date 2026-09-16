@@ -55,3 +55,31 @@ def closed_loop_characteristic(Kp, Ki, Kd):
         SPRING + Kp,
         Ki
     ]
+
+def check_stability(Kp, Ki, Kd):
+    """Check closed-loop stability using the cubic Routh-Hurwitz criterion."""
+
+    a3, a2, a1, a0 = closed_loop_characteristic(Kp, Ki, Kd)
+
+    coefficients_positive = (
+        a3 > 0 and
+        a2 > 0 and
+        a1 > 0 and
+        a0 > 0
+    )
+
+    routh_condition = (a2 * a1) > (a3 * a0)
+
+    stable = coefficients_positive and routh_condition
+
+    return {
+        "requirement": "closed_loop_stability",
+        "operation": "Routh-Hurwitz stability check",
+        "observed": {
+            "coefficients": [a3, a2, a1, a0],
+            "routh_left": a2 * a1,
+            "routh_right": a3 * a0
+        },
+        "expected": "positive coefficients and a2*a1 > a3*a0",
+        "verdict": "pass" if stable else "fail"
+    }
