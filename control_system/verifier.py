@@ -11,3 +11,31 @@ FORCE = 1.0         # N
 MAX_SETTLING_TIME = 0.2       # seconds
 MAX_OVERSHOOT = 5.0           # percent
 TARGET_STEADY_STATE_ERROR = 0.0
+
+def validate_pid_gains(Kp, Ki, Kd):
+    """Check that the PID gains are valid finite numbers."""
+
+    gains = {
+        "Kp": Kp,
+        "Ki": Ki,
+        "Kd": Kd
+    }
+
+    for name, value in gains.items():
+
+        if not isinstance(value, (int, float)):
+            return {
+                "verdict": "fail",
+                "reason": f"{name} is not a number."
+            }
+
+        if not math.isfinite(value):
+            return {
+                "verdict": "fail",
+                "reason": f"{name} is not finite."
+            }
+
+    return {
+        "verdict": "pass",
+        "reason": "Kp, Ki, and Kd are valid finite numbers."
+    }
