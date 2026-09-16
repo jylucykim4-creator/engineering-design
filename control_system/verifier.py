@@ -259,3 +259,44 @@ def check_performance(Kp, Ki, Kd):
             "expected": "successful simulation",
             "verdict": "error"
         }]
+
+def verify_controller(Kp, Ki, Kd):
+    """
+    Run the non-oracle verification pipeline
+    for an XG_13 PID-controller candidate.
+    """
+
+    evidence = []
+
+    # V0: Validate the candidate gains
+    validation = validate_pid_gains(Kp, Ki, Kd)
+    evidence.append({
+        "requirement": "valid_pid_gains",
+        "operation": "numeric validation",
+        "observed": {
+            "Kp": Kp,
+            "Ki": Ki,
+            "Kd": Kd
+        },
+        "expected": "finite numerical PID gains",
+        "verdict": validation["verdict"]
+    })
+
+    
+    # Stop if the candidate itself is invalid
+    if validation["verdict"] != "pass":
+        return evidence
+
+    # V2: Independent analytical stability check
+    stability = check_stability(Kp, Ki, Kd)
+    evidence.append(stability)
+
+    # Do not simulate an analytically unstable controller
+    if stability["verdict"] != "pass":
+        return evidence
+
+    # V3: Execute independent closed-loop simulation
+    performance_evidence = check_performance(Kp, Ki, Kd)
+    evidence.extend(performance_evidence)
+
+    return evidence
