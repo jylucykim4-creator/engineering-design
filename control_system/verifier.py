@@ -39,3 +39,19 @@ def validate_pid_gains(Kp, Ki, Kd):
         "verdict": "pass",
         "reason": "Kp, Ki, and Kd are valid finite numbers."
     }
+    
+def closed_loop_characteristic(Kp, Ki, Kd):
+    """
+    Build the closed-loop characteristic polynomial
+    for the PID-controlled mass-spring-damper system.
+
+    Returns coefficients in descending powers of s:
+    a3*s^3 + a2*s^2 + a1*s + a0
+    """
+
+    return [
+        MASS,
+        DAMPING + Kd,
+        SPRING + Kp,
+        Ki
+    ]
