@@ -1,9 +1,10 @@
 from verifier import verify_controller
 
-def print_evidence(name, evidence):
+def print_evidence(name, result):
     print(f"\n--- {name} ---")
+    print(f"Overall verdict: {result['overall_verdict']}\n")
 
-    for record in evidence:
+    for record in result["evidence"]:
         print(f"Requirement: {record['requirement']}")
         print(f"Verdict:     {record['verdict']}")
         print(f"Observed:    {record['observed']}")
