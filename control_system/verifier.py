@@ -231,27 +231,27 @@ def check_performance(Kp, Ki, Kd):
             )
         })
 
-        # R3: Zero steady-state error
-        # For a stable unity-feedback system with integral action,
-        # the final value theorem gives zero step steady-state error.
-        if Ki > 0:
-            steady_state_error = 0.0
-        else:
-            steady_state_error = SPRING / (SPRING + Kp)
-
-        evidence.append({
-            "requirement": "steady_state_error",
-            "operation": "analytical final-value check",
-            "observed": steady_state_error,
-            "expected": "0 for unit-step reference",
-            "verdict": (
-                "pass"
-                if steady_state_error == 0.0
-                else "fail"
-            )
-        })
-
-        return evidence
+            # R3: Zero steady-state error
+            # For a stable unity-feedback system with integral action,
+            # the final value theorem gives zero step steady-state error.
+            if Ki > 0:
+                steady_state_error = 0.0
+            else:
+                steady_state_error = SPRING / (SPRING + Kp)
+    
+            evidence.append({
+                "requirement": "steady_state_error",
+                "operation": "analytical final-value check",
+                "observed": steady_state_error,
+                "expected": "0 for unit-step reference",
+                "verdict": (
+                    "pass"
+                    if steady_state_error == 0.0
+                    else "fail"
+                )
+            })
+    
+            return evidence
 
     except Exception as exc:
         return [{
