@@ -183,8 +183,81 @@ def measure_performance(time, response):
         "steady_state_error": steady_state_error,
         "final_value": final_value
     }
+def check_performance(Kp, Ki, Kd):
+    """
+    Simulate the candidate controller and check the
+    public XG_13 performance requirements.
+    """
 
+    try:
+        time, response = simulate_closed_loop(Kp, Ki, Kd)
+        metrics = measure_performance(time, response)
 
+        evidence = []
+
+        # R1: Settling time < 0.2 seconds
+        settling_time = metrics["settling_time"]
+
+        if settling_time is None:
+            settling_verdict = "unknown"
+        elif settling_time < MAX_SETTLING_TIME:
+            settling_verdict = "pass"
+        else:
+            settling_verdict = "fail"
+
+        evidence.append({
+            "requirement": "settling_time",
+            "operation": "unit-step closed-loop simulation",
+            "observed": settling_time,
+            "expected": f"< {MAX_SETTLING_TIME} seconds",
+            "verdict": settling_verdict
+        })
+
+        # R2: Overshoot < 5%
+        overshoot = metrics["overshoot"]
+
+        evidence.append({
+            "requirement": "overshoot",
+            "operation": "unit-step closed-loop simulation",
+            "observed": overshoot,
+            "expected": f"< {MAX_OVERSHOOT} percent",
+            "verdict": (
+                "pass"
+                if overshoot < MAX_OVERSHOOT
+                else "fail"
+            )
+        })
+
+        # R3: Zero steady-state error
+        # Under the unity-feedback modeling assumption,
+        # integral action gives zero step steady-state error.
+        if Ki > 0:
+            steady_state_error = 0.0
+        else:
+            steady_state_error = SPRING / (SPRING + Kp)
+
+        evidence.append({
+            "requirement": "steady_state_error",
+            "operation": "analytical final-value check",
+            "observed": steady_state_error,
+            "expected": "0 for unit-step reference",
+            "verdict": (
+                "pass"
+                if steady_state_error == 0.0
+                else "fail"
+            )
+        })
+
+        return evidence
+
+    except Exception as exc:
+        return [{
+            "requirement": "closed_loop_performance",
+            "operation": "unit-step closed-loop simulation",
+            "observed": str(exc),
+            "expected": "successful simulation",
+            "verdict": "error"
+        }]
     
 
 def verify_controller(Kp, Ki, Kd):
