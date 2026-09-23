@@ -51,9 +51,9 @@ print_evidence(
 
 # Fixture 4: Candidate expected to satisfy all requirements
 passing_controller = verify_controller(
-    Kp=2680.0,
-    Ki=27000.0,
-    Kd=80.0
+    Kp=4000.0,
+    Ki=5000.0,
+    Kd=300.0
 )
 
-print_evidence("FIXTURE 4 - Candidate passing controller", passing_controller)
+print_evidence("TEST 4 - Candidate passing controller", passing_controller)
