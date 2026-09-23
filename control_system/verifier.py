@@ -183,6 +183,7 @@ def measure_performance(time, response):
         "steady_state_error": steady_state_error,
         "final_value": final_value
     }
+
 def check_performance(Kp, Ki, Kd):
     """
     Simulate the candidate controller and check the
@@ -221,11 +222,7 @@ def check_performance(Kp, Ki, Kd):
             "operation": "unit-step closed-loop simulation",
             "observed": overshoot,
             "expected": f"< {MAX_OVERSHOOT} percent",
-            "verdict": (
-                "pass"
-                if overshoot < MAX_OVERSHOOT
-                else "fail"
-            )
+            "verdict": "pass" if overshoot < MAX_OVERSHOOT else "fail"
         })
 
         # R3: Zero steady-state error
@@ -241,11 +238,7 @@ def check_performance(Kp, Ki, Kd):
             "operation": "analytical final-value check",
             "observed": steady_state_error,
             "expected": "0 for unit-step reference",
-            "verdict": (
-                "pass"
-                if steady_state_error == 0.0
-                else "fail"
-            )
+            "verdict": "pass" if steady_state_error == 0.0 else "fail"
         })
 
         return evidence
@@ -258,7 +251,6 @@ def check_performance(Kp, Ki, Kd):
             "expected": "successful simulation",
             "verdict": "error"
         }]
-    
 
 def verify_controller(Kp, Ki, Kd):
     """
