@@ -48,3 +48,12 @@ print_evidence(
     "TEST 3 - Stable controller",
     stable_controller
 )
+
+# Fixture 4: Candidate expected to satisfy all requirements
+passing_controller = verify_controller(
+    Kp=2680.0,
+    Ki=27000.0,
+    Kd=80.0
+)
+
+print_evidence("FIXTURE 4 - Candidate passing controller", passing_controller)
